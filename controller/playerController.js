@@ -91,3 +91,34 @@ export const deletePlayer = async (req, res)=>{
 
     }
 }
+
+// patch controller for partial updates
+export const patchPlayer = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+
+        // Find the player first
+        const player = await Player.findById(id);
+        if (!player) {
+            return res.status(404).json({ error: "Player not found" });
+        }
+
+        // Update only the fields that are provided
+        Object.keys(updates).forEach(key => {
+            if (updates[key] !== undefined) {
+                player[key] = updates[key];
+            }
+        });
+
+        // Save the updated player
+        const updatedPlayer = await player.save();
+        res.status(200).json(updatedPlayer);
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server error" });
+    }
+}
+
+export const healthCheck = (req, res) => {
+    res.status(200).json({message: "API is working!"});
+}
